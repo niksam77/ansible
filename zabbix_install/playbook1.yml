@@ -1,0 +1,56 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+
+  - name: install other
+    apt: name= "{{ item }}" state=latest
+    with_items:
+    - apache2
+    - libapache2-mod-php
+    - mysql-server
+    - php
+    - php-mbstring
+    - php-gd
+    - php-xml
+    - php-bcmath
+    - php-ldap
+    - php-mysql
+    update_cache: yes
+
+  - name: systemct
+    systemd:
+      name: "{{item}}"
+      state: started
+      enabled: yes
+      with_items:
+      - mysql
+      - apache2
+
+  - name: download rep
+    get_url:
+      url: http://repo.zabbix.com/zabbix/3.4/debian/pool/main/z/zabbix-release/zabbix-release_3.4-1%2Bjessie_all.deb
+      dest: /root
+  
+  - name: install rep
+    apt: deb="/root/zabbix-release_3.4-1%2Bjessie_all.deb"
+
+  - name: install zabbix
+    apt: name= "{{ item }}" state=latest
+    with_items:
+    - zabbix-server-mysql
+    - zabbix-frontend-php
+    update_cache: yes
+
+  - name: mysql_db create
+    mysql_db: 
+      name: zabbix
+      state: present
+
+  - name: mysql_user
+    mysql_user:
+      name: zabbix
+      password: zabbix
+      priv: '*.*:ALL'
+      state: present
