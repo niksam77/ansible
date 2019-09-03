@@ -1,0 +1,47 @@
+---
+- name: jenkins 
+  hosts: all
+  become: yes
+
+  tasks:
+
+  - name: install java 
+    apt: name=openjdk-8-jre state=latest
+
+  - shell: java -version
+    register: result
+
+  - name: debug java
+    debug:
+      msg: "{{ result }}"  
+ 
+  - name: download jenkins-key
+    apt_key: 
+      url: https://pkg.jenkins.io/debian/jenkins.io.key
+      state: present
+  
+  - name: install jenkins
+    shell: sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+  - apt:
+     update_cache: yes
+
+  - apt: name=jenkins  state=latest
+  
+  - name: enable jenkins
+    systemd: 
+      name: jenkins 
+      state: started
+      enabled: yes
+  
+  - shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+    register: pass 
+  
+  - name: pass_install
+    debug:
+      msg: "{{ pass }}"
+
+
+
+
+ 
+

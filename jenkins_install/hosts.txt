@@ -1,0 +1,3 @@
+[staging_server]
+
+jenkins	ansible_host=51.105.26.1 ansible_user=niksam ansible_ssh_private_key_file=/home/niksam/.ssh/id_rsa
